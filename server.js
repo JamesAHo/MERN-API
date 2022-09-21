@@ -177,7 +177,36 @@ app.delete('/api/thoughts/:id', ({params}, res) => {
         res.status(404).json(error)
     }
 })
-
+// add reactions
+// Post /api/thoughts/:id/reactions
+app.post('/api/thoughts/:id/reactions', ({params, body}, res) => {
+    try {
+        Thought.findOneAndUpdate({_id: params.thoughtId}, {$addToSet: {reactions:body}}, {new:true}).then(Thoughtdb => {
+            if(!Thoughtdb) {
+                res.status(404).json({message: 'No thought found by this id'});
+                return;
+            }
+            res.json(Thoughtdb)
+        })
+    } catch (error) {
+        res.status(404).json(error);
+    }
+})
+// remove reactions
+// DELETE /api/thoughts/:id/reactions
+app.delete('/api/thoughts/:id/reactions', ({params, body}, res) => {
+    try {
+        Thought.findOneAndUpdate({_id: params.thoughtId}, {$pull: { reactions: {reactionID: body.reactionId}}}, {new: true, runValidators:true}).then(Thoughtdb => {
+            if(!Thoughtdb) {
+                res.status(404).json({message: 'No thought found by this id'});
+                return;
+            }
+            res.json({message: "Deleted Successfully"})
+        })
+    } catch (error) {
+        res.status(404).json(error)
+    }
+})
 
 
 
